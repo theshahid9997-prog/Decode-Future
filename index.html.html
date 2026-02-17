@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramadan Timetable - Dcode Future || Pampore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Playfair+Display:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Stars Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Crescent Moon */
+        .crescent {
+            position: fixed;
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: -20px 5px 0 5px #ffd700;
+            transform: rotate(-20deg);
+            opacity: 0.8;
+            z-index: 1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotate(-20deg) translateY(0); }
+            50% { transform: rotate(-20deg) translateY(-10px); }
+        }
+
+        /* Mosque Silhouette */
+        .mosque-silhouette {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300"><path d="M0,300 L0,250 Q50,200 100,250 T200,250 T300,250 L300,150 Q320,100 340,150 L340,250 L400,250 L400,180 Q420,120 440,180 L440,250 L500,250 L500,100 Q550,50 600,100 L600,250 L650,250 L650,160 Q670,110 690,160 L690,250 L750,250 L750,200 Q800,150 850,200 L850,250 L900,250 L900,120 Q950,70 1000,120 L1000,250 L1100,250 L1100,180 Q1120,130 1140,180 L1140,250 L1200,250 L1200,300 Z" fill="%23000" opacity="0.3"/></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(147, 112, 219, 0.3) 100%);
+            padding: 40px;
+            text-align: center;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+            position: relative;
+        }
+
+        .header::before {
+            content: '☪';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            color: #ffd700;
+            opacity: 0.5;
+        }
+
+        .org-name {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffd700, #ffed4e, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .org-name::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #ffd700, transparent);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .ramadan-title {
+            font-size: 2rem;
+            color: #ffd700;
+            margin-top: 15px;
+            font-family: 'Noto Nastaliq Urdu', serif;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        thead {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(147, 112, 219, 0.4));
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: center;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+            position: relative;
+        }
+
+        th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 2px;
+            background: #ffd700;
+        }
+
+        td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: rgba(212, 175, 55, 0.1);
+            transform: scale(1.02);
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .date-cell {
+            font-weight: 700;
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .day-name {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .time {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .suhoor {
+            color: #87CEEB;
+        }
+
+        .iftar {
+            color: #FF6B6B;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dua {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .arabic {
+            font-family: 'Noto Nastaliq Urdu', serif;
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-top: 10px;
+        }
+
+        /* Lantern Decoration */
+        .lantern {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: linear-gradient(to bottom, #ffd700, #ff8c00);
+            border-radius: 10px 10px 20px 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            animation: swing 4s ease-in-out infinite;
+        }
+
+        .lantern::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 10px;
+            background: #8b4513;
+            border-radius: 5px;
+        }
+
+        .lantern.left {
+            left: 30px;
+            top: 150px;
+        }
+
+        .lantern.right {
+            right: 30px;
+            top: 150px;
+            animation-delay: 2s;
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @media (max-width: 768px) {
+            .org-name { font-size: 1.8rem; }
+            .table-container { padding: 15px; }
+            th, td { padding: 10px 5px; font-size: 0.8rem; }
+            .time { min-width: 60px; padding: 3px 6px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Stars -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- Crescent Moon -->
+    <div class="crescent"></div>
+    
+    <!-- Mosque Silhouette -->
+    <div class="mosque-silhouette"></div>
+    
+    <!-- Decorative Lanterns -->
+    <div class="lantern left"></div>
+    <div class="lantern right"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="org-name">DCODE FUTURE || PAMPORE</div>
+            <div class="subtitle">Ramadan Mubarak</div>
+            <div class="ramadan-title">رمضان كريم</div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Roza</th>
+                        <th>Date</th>
+                        <th>Sehri<br><span style="font-size:0.7rem; opacity:0.7">(Fajr)</span></th>
+                        <th>Sunrise</th>
+                        <th>Zuhr</th>
+                        <th>Asr</th>
+                        <th>Iftar<br><span style="font-size:0.7rem; opacity:0.7">(Maghrib)</span></th>
+                        <th>Isha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td class="date-cell">19, Thu<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:45 AM</span></td>
+                        <td><span class="time">06:15 AM</span></td>
+                        <td><span class="time">12:45 PM</span></td>
+                        <td><span class="time">03:53 PM</span></td>
+                        <td><span class="time iftar">06:19 PM</span></td>
+                        <td><span class="time">07:49 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td class="date-cell">20, Fri<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:44 AM</span></td>
+                        <td><span class="time">06:14 AM</span></td>
+                        <td><span class="time">12:45 PM</span></td>
+                        <td><span class="time">03:54 PM</span></td>
+                        <td><span class="time iftar">06:19 PM</span></td>
+                        <td><span class="time">07:49 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td class="date-cell">21, Sat<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:43 AM</span></td>
+                        <td><span class="time">06:13 AM</span></td>
+                        <td><span class="time">12:45 PM</span></td>
+                        <td><span class="time">03:55 PM</span></td>
+                        <td><span class="time iftar">06:20 PM</span></td>
+                        <td><span class="time">07:50 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td class="date-cell">22, Sun<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:42 AM</span></td>
+                        <td><span class="time">06:12 AM</span></td>
+                        <td><span class="time">12:45 PM</span></td>
+                        <td><span class="time">03:55 PM</span></td>
+                        <td><span class="time iftar">06:21 PM</span></td>
+                        <td><span class="time">07:51 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td class="date-cell">23, Mon<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:41 AM</span></td>
+                        <td><span class="time">06:11 AM</span></td>
+                        <td><span class="time">12:45 PM</span></td>
+                        <td><span class="time">03:56 PM</span></td>
+                        <td><span class="time iftar">06:22 PM</span></td>
+                        <td><span class="time">07:52 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td class="date-cell">24, Tue<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:40 AM</span></td>
+                        <td><span class="time">06:10 AM</span></td>
+                        <td><span class="time">12:44 PM</span></td>
+                        <td><span class="time">03:56 PM</span></td>
+                        <td><span class="time iftar">06:23 PM</span></td>
+                        <td><span class="time">07:53 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td class="date-cell">25, Wed<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:39 AM</span></td>
+                        <td><span class="time">06:09 AM</span></td>
+                        <td><span class="time">12:44 PM</span></td>
+                        <td><span class="time">03:57 PM</span></td>
+                        <td><span class="time iftar">06:24 PM</span></td>
+                        <td><span class="time">07:54 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td class="date-cell">26, Thu<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:38 AM</span></td>
+                        <td><span class="time">06:08 AM</span></td>
+                        <td><span class="time">12:44 PM</span></td>
+                        <td><span class="time">03:57 PM</span></td>
+                        <td><span class="time iftar">06:25 PM</span></td>
+                        <td><span class="time">07:55 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td class="date-cell">27, Fri<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:36 AM</span></td>
+                        <td><span class="time">06:06 AM</span></td>
+                        <td><span class="time">12:44 PM</span></td>
+                        <td><span class="time">03:58 PM</span></td>
+                        <td><span class="time iftar">06:26 PM</span></td>
+                        <td><span class="time">07:56 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td class="date-cell">28, Sat<span class="day-name">March</span></td>
+                        <td><span class="time suhoor">05:35 AM</span></td>
+                        <td><span class="time">06:05 AM</span></td>
+                        <td><span class="time">12:44 PM</span></td>
+                        <td><span class="time">03:58 PM</span></td>
+                        <td><span class="time iftar">06:26 PM</span></td>
+                        <td><span class="time">07:56 PM</span></td>
+                    </tr>
+                    <tr style="background: rgba(255,215,0,0.15);">
+                        <td>11</td>
+                        <td class="date-cell">01, Sun<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:34 AM</span></td>
+                        <td><span class="time">06:04 AM</span></td>
+                        <td><span class="time">12:44 PM</span></td>
+                        <td><span class="time">03:59 PM</span></td>
+                        <td><span class="time iftar">06:27 PM</span></td>
+                        <td><span class="time">07:57 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td class="date-cell">02, Mon<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:33 AM</span></td>
+                        <td><span class="time">06:03 AM</span></td>
+                        <td><span class="time">12:43 PM</span></td>
+                        <td><span class="time">03:59 PM</span></td>
+                        <td><span class="time iftar">06:28 PM</span></td>
+                        <td><span class="time">07:58 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td class="date-cell">03, Tue<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:32 AM</span></td>
+                        <td><span class="time">06:02 AM</span></td>
+                        <td><span class="time">12:43 PM</span></td>
+                        <td><span class="time">04:00 PM</span></td>
+                        <td><span class="time iftar">06:29 PM</span></td>
+                        <td><span class="time">07:59 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td class="date-cell">04, Wed<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:30 AM</span></td>
+                        <td><span class="time">06:00 AM</span></td>
+                        <td><span class="time">12:43 PM</span></td>
+                        <td><span class="time">04:00 PM</span></td>
+                        <td><span class="time iftar">06:30 PM</span></td>
+                        <td><span class="time">08:00 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td class="date-cell">05, Thu<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:29 AM</span></td>
+                        <td><span class="time">05:59 AM</span></td>
+                        <td><span class="time">12:43 PM</span></td>
+                        <td><span class="time">04:01 PM</span></td>
+                        <td><span class="time iftar">06:31 PM</span></td>
+                        <td><span class="time">08:01 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td class="date-cell">06, Fri<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:28 AM</span></td>
+                        <td><span class="time">05:58 AM</span></td>
+                        <td><span class="time">12:43 PM</span></td>
+                        <td><span class="time">04:01 PM</span></td>
+                        <td><span class="time iftar">06:32 PM</span></td>
+                        <td><span class="time">08:02 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td class="date-cell">07, Sat<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:27 AM</span></td>
+                        <td><span class="time">05:57 AM</span></td>
+                        <td><span class="time">12:42 PM</span></td>
+                        <td><span class="time">04:02 PM</span></td>
+                        <td><span class="time iftar">06:32 PM</span></td>
+                        <td><span class="time">08:02 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>18</td>
+                        <td class="date-cell">08, Sun<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:25 AM</span></td>
+                        <td><span class="time">05:55 AM</span></td>
+                        <td><span class="time">12:42 PM</span></td>
+                        <td><span class="time">04:02 PM</span></td>
+                        <td><span class="time iftar">06:33 PM</span></td>
+                        <td><span class="time">08:03 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>19</td>
+                        <td class="date-cell">09, Mon<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:24 AM</span></td>
+                        <td><span class="time">05:54 AM</span></td>
+                        <td><span class="time">12:42 PM</span></td>
+                        <td><span class="time">04:02 PM</span></td>
+                        <td><span class="time iftar">06:34 PM</span></td>
+                        <td><span class="time">08:04 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td class="date-cell">10, Tue<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:23 AM</span></td>
+                        <td><span class="time">05:53 AM</span></td>
+                        <td><span class="time">12:42 PM</span></td>
+                        <td><span class="time">04:03 PM</span></td>
+                        <td><span class="time iftar">06:35 PM</span></td>
+                        <td><span class="time">08:05 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>21</td>
+                        <td class="date-cell">11, Wed<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:21 AM</span></td>
+                        <td><span class="time">05:51 AM</span></td>
+                        <td><span class="time">12:41 PM</span></td>
+                        <td><span class="time">04:03 PM</span></td>
+                        <td><span class="time iftar">06:36 PM</span></td>
+                        <td><span class="time">08:06 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>22</td>
+                        <td class="date-cell">12, Thu<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:20 AM</span></td>
+                        <td><span class="time">05:50 AM</span></td>
+                        <td><span class="time">12:41 PM</span></td>
+                        <td><span class="time">04:04 PM</span></td>
+                        <td><span class="time iftar">06:36 PM</span></td>
+                        <td><span class="time">08:06 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td class="date-cell">13, Fri<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:18 AM</span></td>
+                        <td><span class="time">05:48 AM</span></td>
+                        <td><span class="time">12:41 PM</span></td>
+                        <td><span class="time">04:04 PM</span></td>
+                        <td><span class="time iftar">06:37 PM</span></td>
+                        <td><span class="time">08:07 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>24</td>
+                        <td class="date-cell">14, Sat<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:17 AM</span></td>
+                        <td><span class="time">05:47 AM</span></td>
+                        <td><span class="time">12:41 PM</span></td>
+                        <td><span class="time">04:04 PM</span></td>
+                        <td><span class="time iftar">06:38 PM</span></td>
+                        <td><span class="time">08:08 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>25</td>
+                        <td class="date-cell">15, Sun<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:16 AM</span></td>
+                        <td><span class="time">05:46 AM</span></td>
+                        <td><span class="time">12:40 PM</span></td>
+                        <td><span class="time">04:05 PM</span></td>
+                        <td><span class="time iftar">06:39 PM</span></td>
+                        <td><span class="time">08:09 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>26</td>
+                        <td class="date-cell">16, Mon<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:14 AM</span></td>
+                        <td><span class="time">05:44 AM</span></td>
+                        <td><span class="time">12:40 PM</span></td>
+                        <td><span class="time">04:05 PM</span></td>
+                        <td><span class="time iftar">06:40 PM</span></td>
+                        <td><span class="time">08:10 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>27</td>
+                        <td class="date-cell">17, Tue<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:13 AM</span></td>
+                        <td><span class="time">05:43 AM</span></td>
+                        <td><span class="time">12:40 PM</span></td>
+                        <td><span class="time">04:05 PM</span></td>
+                        <td><span class="time iftar">06:40 PM</span></td>
+                        <td><span class="time">08:10 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>28</td>
+                        <td class="date-cell">18, Wed<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:11 AM</span></td>
+                        <td><span class="time">05:41 AM</span></td>
+                        <td><span class="time">12:39 PM</span></td>
+                        <td><span class="time">04:06 PM</span></td>
+                        <td><span class="time iftar">06:41 PM</span></td>
+                        <td><span class="time">08:11 PM</span></td>
+                    </tr>
+                    <tr>
+                        <td>29</td>
+                        <td class="date-cell">19, Thu<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:10 AM</span></td>
+                        <td><span class="time">05:40 AM</span></td>
+                        <td><span class="time">12:39 PM</span></td>
+                        <td><span class="time">04:06 PM</span></td>
+                        <td><span class="time iftar">06:42 PM</span></td>
+                        <td><span class="time">08:12 PM</span></td>
+                    </tr>
+                    <tr style="background: linear-gradient(90deg, rgba(255,215,0,0.2), rgba(255,215,0,0.1), rgba(255,215,0,0.2));">
+                        <td>30</td>
+                        <td class="date-cell">20, Fri<span class="day-name">April</span></td>
+                        <td><span class="time suhoor">05:08 AM</span></td>
+                        <td><span class="time">05:38 AM</span></td>
+                        <td><span class="time">12:39 PM</span></td>
+                        <td><span class="time">04:06 PM</span></td>
+                        <td><span class="time iftar">06:43 PM</span></td>
+                        <td><span class="time">08:13 PM</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div class="dua">
+                "Allahumma innaka 'afuwwun tuhibbul 'afwa fa'fu 'annee"
+            </div>
+            <div class="arabic">
+                اللهم إنك عفو تحب العفو فاعف عني
+            </div>
+            <div style="margin-top: 20px; font-size: 0.9rem; color: rgba(255,255,255,0.5);">
+                © 2026 Dcode Future Pampore | Ramadan Kareem
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>
